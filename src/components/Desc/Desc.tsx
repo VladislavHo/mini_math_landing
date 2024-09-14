@@ -1,4 +1,3 @@
-import React from 'react'
 import "./desc.scss"
 import { TelegramSvg } from '../Svg/Svg'
 export default function Desc() {
