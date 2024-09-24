@@ -5,6 +5,12 @@ import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import PrivacyPolicy from './components/PrivatPolicy/PrivacyPolicy.tsx'
 import Questionnaire from './components/Questionnaire/Questionnaire.tsx'
+import Article from './components/Article/Article.tsx'
+import CalendarWrapper from './components/Calendar/CalendarWrapper.tsx'
+import Pay from './components/Pay/Pay.tsx'
+import RecordCheck from './components/RecordCheck/RecordCheck.tsx'
+
+
 
 const router = createBrowserRouter([
   {
@@ -23,14 +29,33 @@ const router = createBrowserRouter([
     element: <div className='not-found'>404</div>,
   },
   {
-    path: '/questionnaire',
+    path: '/:user_id/questionnaire',
     element: <Questionnaire/>,
+  },
+  {
+    path: '/:user_id/article/',
+    element: <Article/>,
+  },
+  {
+    path: '/calendar',
+    element: <CalendarWrapper />,
+  },
+  {
+    path: '/pay',
+    element: <Pay />,
+  },
+  {
+    path: '/record-check',
+    element: <RecordCheck />,
   }
 
 ])
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
+
+
     <RouterProvider router={router} />
+
   </React.StrictMode>,
 )
