@@ -1,6 +1,6 @@
 
 import { User } from "../types/types"
-import { SERVER_SITE } from "../var/var"
+import { SERVER_SITE } from "../config/config"
 
 export async function createUser(user: User) {
   try {
@@ -40,6 +40,9 @@ export async function addedWithUserAppointment({id, date, time}: {id: string, da
 
     return data
   } catch (error) {
-    console.log(error)
+    return {
+      success: false,
+      error: error
+    }
   }
 }

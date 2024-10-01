@@ -7,7 +7,6 @@ import PrivacyPolicy from './components/PrivatPolicy/PrivacyPolicy.tsx'
 import Questionnaire from './components/Questionnaire/Questionnaire.tsx'
 import Article from './components/Article/Article.tsx'
 import CalendarWrapper from './components/Calendar/CalendarWrapper.tsx'
-import Pay from './components/Pay/Pay.tsx'
 import RecordCheck from './components/RecordCheck/RecordCheck.tsx'
 
 
@@ -39,10 +38,6 @@ const router = createBrowserRouter([
   {
     path: '/calendar',
     element: <CalendarWrapper />,
-  },
-  {
-    path: '/pay',
-    element: <Pay />,
   },
   {
     path: '/record-check',
