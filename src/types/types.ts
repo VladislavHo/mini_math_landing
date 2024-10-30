@@ -1,6 +1,5 @@
 export interface User{
   id?: string;
-  telegram_id: string | undefined;
   name: string;
   lastName: string;
   phone: string;

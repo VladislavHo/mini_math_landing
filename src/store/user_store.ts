@@ -7,7 +7,6 @@ import { User } from "../types/types";
 class UserStore {
   userData: User = {
     id: '',
-    telegram_id: '',
     name: '',
     lastName: '',
     phone: '',
@@ -18,6 +17,8 @@ class UserStore {
     age: '',
     income: '',
   }
+
+  errorUserData: boolean = false
 
   constructor() {
     makeAutoObservable(this);
@@ -31,24 +32,20 @@ class UserStore {
       const userResponse = await createUser(userDate)
 
 
-      console.log(userResponse)
-
       runInAction(() => {
         this.userData = userResponse.data
-        localStorage.setItem('id', userResponse.data.id ?? '')
       })
 
 
       console.log(this.userData);
 
     } catch (error) {
-      console.log(error)
+      this.errorUserData = true
     }
   }
 
 
-   addedWithUserAppointmentActions = async ({ date, time }: { date: Date, time: string })=> {
-    const id = localStorage.getItem('id') ?? ''
+   addedWithUserAppointmentActions = async ({ date, time, id }: { date: Date, time: string, id: string })=> {
     try {
       const userResponse = await addedWithUserAppointment({ id, date, time })
 
@@ -58,7 +55,7 @@ class UserStore {
       })
       console.log(userResponse);
     } catch (error) {
-      console.log(error)
+      this.errorUserData = true
     }
   }
 }

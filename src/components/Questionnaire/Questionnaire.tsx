@@ -1,7 +1,6 @@
 import { useForm, SubmitHandler } from "react-hook-form"
 
 import "./questionnaire.scss"
-import { useParams } from "react-router-dom";
 
 import { FormValues } from "../../types/types";
 import { useEffect, useState } from "react";
@@ -9,77 +8,79 @@ import AnswerPopupQuestionnaire from "../AnswerPopupQuestionnaire/AnswerPopupQue
 import { observer } from "mobx-react-lite";
 import UserStore from "../../store/user_store";
 import ErrorPopup from "../ErrorPopup/ErrorPopup";
+import Select from "react-select";
+import { OPTION_COUNTRY_CODES } from "../../config/config";
+import { customStyles } from "./styles";
+
 // import { useNavigate } from 'react-router-dom';
 
+
+
 const Questionnaire = observer(() => {
-  // const navigation = useNavigate()
-  // const record = localStorage.getItem('record');
-  const { createUserActions, userData } = UserStore
+  const id = localStorage.getItem('id');
+  const { createUserActions, errorUserData } = UserStore
   const [isActive, setIsActive] = useState(false);
   const [isPayment, setIsPayment] = useState(false); //false
   const [isLoading, setIsLoading] = useState({
     success: false,
     error: false
   });
+  const [selectedOption, setSelectedOption] = useState<string | null>("+7");
 
   const [inputValueTask, setInputValueTask] = useState('Иное')
 
-  // useEffect(() => {
-  //   if (record) {
-  //     navigation('/record-check')
-  //   }
-  // }, [])
+  console.log(selectedOption);
 
+
+  function setCountryNumber(newValue: unknown) {
+    const option = newValue as { value: string; label: string };
+    setSelectedOption(option.label)
+  }
 
   useEffect(() => {
     setIsPayment(Math.random() < 0.5)
   }, [])
 
-  const { user_id } = useParams();
+
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormValues>(
-    {
-      defaultValues: {
-
-        tasks: 'Подготовить к поступлению в западное учебное заведение',
-        age: 'Старше 18 лет',
-        investment: 'До $449',
-
-      }
-    }
-  );
+  } = useForm<FormValues>();
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    const user = { ...data, telegram_id: user_id }
+    const fullPhoneNumber = `${selectedOption} ${data.phone}`;
+
+    const user = { ...data, id: id ?? '', phone: fullPhoneNumber }
+
+
     setIsLoading({ ...isLoading, success: true })
     await createUserActions(user)
       .then(() => setIsLoading({ ...isLoading, success: false }))
       .catch(() => setIsLoading({ ...isLoading, error: true }))
     setIsActive(true)
+
   };
 
   return (
     <>
       {
-        isLoading.error && (
-          <ErrorPopup />
+        errorUserData && (
+          <ErrorPopup message="Произошла ошибка при создании анкеты. Обновите страницу или повторите попытку позже" />
         )
       }
       {
-        isActive && !isLoading.success && (
-          <AnswerPopupQuestionnaire isPayment={isPayment} userID={userData.id ?? ''} telegram_id={userData.telegram_id ?? ''} />
+        isActive && !isLoading.success && !errorUserData && (
+          <AnswerPopupQuestionnaire isPayment={isPayment} userID={id} />
         )
       }
       <section className="questionnaire">
-        <h2>Анкета для записи на консультацию и тестирование от команды «Foreign Math-Успех в учебе на западе» Жанны Бородаевой.</h2>
+        <h2 style={{ maxWidth: "640px" }}>Анкета для записи на консультацию и тестирование от команды MathPad</h2>
         <p className="description-red">Анкета предназначена для родителей школьников</p>
 
 
         <p className="description">
-          Это займет всего 5 минут вашего времени. Ответы помогут понять, как наша команда сможет вам помочь в достижении ваших учебных целей по математике и программированию на западе и подготовить материал для теста. Пожалуйста, проявите искренность и открытость.
+          Это займет всего 5 минут вашего времени. Ответы помогут понять, как наша команда сможет вам помочь в достижении ваших учебных целей по математике, физике и программированию на западе и подготовить материал для теста. Пожалуйста, проявите искренность и открытость.
         </p>
 
         <p className="description-field--info">Поля обязательны к заполнению *</p>
@@ -122,18 +123,44 @@ const Questionnaire = observer(() => {
 
           <div className="phone-field field">
             <label className="label-title">Номер телефона с префиксом страны (на котором есть WhatsApp)*</label>
-            <input
-              type="tel"
-              {...register('phone', { required: 'Это поле обязательно', minLength: 10, maxLength: 15, pattern: /^[+]*[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s./0-9]*$/g })}
-              placeholder="+7 (999) 999-99-99"
-            />
-            {errors.phone && <span className="error-message">{errors.phone.message}</span>}
+            <div className="field--number">
+              <Select onChange={setCountryNumber} defaultValue={OPTION_COUNTRY_CODES[0]} styles={customStyles} options={OPTION_COUNTRY_CODES} />
+
+              <input
+                type="tel"
+                {...register('phone', {
+                  required: 'Это поле обязательно',
+                  minLength: {
+                    value: 8,
+                    message: 'Минимальная длина 10 символов',
+                  },
+                  maxLength: {
+                    value: 15,
+                    message: 'Максимальная длина 15 символов',
+                  },
+                  // pattern: {
+                  //   value: /^\d{9}$|^\d{2}[- ]?\d{3}[- ]?\d{2}[- ]?\d{2}$/,
+                  //   message: 'Некорректный формат номера',
+                  // },
+                })}
+                placeholder="(999) 999-99-99"
+              />
+              {errors.phone && <span className="error-message">{errors.phone.message}</span>}
+            </div>
           </div>
 
           <div className="email-field field">
             <label className="label-title">Электронная почта*</label>
             <input
-              {...register('email', { required: 'Это поле обязательно', minLength: 8, maxLength: 30, pattern: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i })}
+              {...register('email',
+                {
+                  required: 'Это поле обязательно',
+                  minLength: 8, maxLength: 30,
+                  pattern: {
+                    value: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/i,
+                    message: 'Некорректный формат электронной почты',
+                  }
+                })}
               type="email"
               placeholder="Поле ввода"
             />
@@ -196,7 +223,7 @@ const Questionnaire = observer(() => {
               <input
                 type="text"
                 placeholder="Уточните, что именно"
-                style={{ marginLeft: "5px", padding: "9px 15px" }}
+                style={{ marginLeft: "5px", padding: "9px 15px", width: "200px" }}
                 onChange={(e) => {
                   setInputValueTask(e.target.value);
                 }}
@@ -276,16 +303,7 @@ const Questionnaire = observer(() => {
 
 
           <div className="investment-field field">
-            <label className="label-title">Сколько вы готовы вкладывать в месяц в достижение академических целей по математике и программированию?*</label>
-            <label htmlFor="">
-              <input
-                type="radio"
-                value="не готов"
-                style={{ marginRight: "5px" }}
-                {...register('investment', { required: 'Это поле обязательно' })}
-              />
-              Не готов(а) сейчас вкладываться
-            </label>
+            <label className="label-title">Сколько вы готовы вкладывать в месяц в достижение академических целей по математике, физике и программированию?*</label>
             <label>
               <input
                 type="radio"
@@ -312,6 +330,15 @@ const Questionnaire = observer(() => {
                 {...register('investment', { required: 'Это поле обязательно' })}
               />
               Свыше $700
+            </label>
+            <label htmlFor="">
+              <input
+                type="radio"
+                value="Сколько нужно, столько и буду. Лишь бы был результат"
+                style={{ marginRight: "5px" }}
+                {...register('investment', { required: 'Это поле обязательно' })}
+              />
+              Сколько нужно, столько и буду. Лишь бы был результат
             </label>
 
             {errors.investment && <span className="error-message">{errors.investment.message}</span>}
