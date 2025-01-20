@@ -9,7 +9,9 @@ export default function Desc() {
   };
   return (
     <section className='desc'>
-            <a href="t.me/vladislavho" style="color:red">link\<a/> 
+            <a href="https://t.me/vladislavho" style="color:red">link\<a/> 
+                <a href="https://t.me/vladislavho" style="color:red">link\<a/> 
+                    <a href="https://t.me/vladislavho" style="color:red">link\<a/> 
       <h2>Методика достижения целей по математике и физике в западных школах: дорога к поступлению в Оксфорд </h2>
       <p>
         Я со своей командой помогаю школьникам из западных стран и их родителям достигать учебных целей по математике, физике и программированию.
